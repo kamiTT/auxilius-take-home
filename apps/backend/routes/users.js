@@ -1,19 +1,19 @@
-var express = require('express');
-var router = express.Router();
-var db = require('../db');
+const express = require('express');
+const router = express.Router();
+const db = require('../db');
 
-router.get('/', async function (req, res) {
+router.get('/', async (req, res) => {
   try {
-    var result = await db.listUsers();
+    const result = await db.listUsers();
     res.json({ users: result.rows });
   } catch (error) {
     res.status(500).json({ error: 'Failed to load users', details: error.message });
   }
 });
 
-router.get('/:id', async function (req, res) {
+router.get('/:id', async (req, res) => {
   try {
-    var result = await db.getUserById(req.params.id);
+    const result = await db.getUserById(req.params.id);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -23,14 +23,14 @@ router.get('/:id', async function (req, res) {
   }
 });
 
-router.post('/', async function (req, res) {
-  var username = req.body.username;
+router.post('/', async (req, res) => {
+  const username = req.body.username;
   if (typeof username !== 'string' || username.trim() === '') {
     return res.status(400).json({ error: 'username is required' });
   }
 
   try {
-    var result = await db.createUser({ username: username.trim() });
+    const result = await db.createUser({ username: username.trim() });
     res.status(201).json({ user: result.rows[0] });
   } catch (error) {
     if (error.code === '23505') {
@@ -40,18 +40,18 @@ router.post('/', async function (req, res) {
   }
 });
 
-async function updateUser(req, res) {
+const updateUser = async (req, res) => {
   if (!Object.prototype.hasOwnProperty.call(req.body, 'username')) {
     return res.status(400).json({ error: 'username is required for update' });
   }
 
-  var username = req.body.username;
+  const username = req.body.username;
   if (typeof username !== 'string' || username.trim() === '') {
     return res.status(400).json({ error: 'username must be a non-empty string' });
   }
 
   try {
-    var result = await db.updateUser(req.params.id, { username: username.trim() });
+    const result = await db.updateUser(req.params.id, { username: username.trim() });
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -62,14 +62,14 @@ async function updateUser(req, res) {
     }
     res.status(500).json({ error: 'Failed to update user', details: error.message });
   }
-}
+};
 
 router.put('/:id', updateUser);
 router.patch('/:id', updateUser);
 
-router.delete('/:id', async function (req, res) {
+router.delete('/:id', async (req, res) => {
   try {
-    var result = await db.deleteUser(req.params.id);
+    const result = await db.deleteUser(req.params.id);
     if (result.rowCount === 0) {
       return res.status(404).json({ error: 'User not found' });
     }

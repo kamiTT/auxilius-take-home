@@ -1,16 +1,14 @@
-var express = require('express');
-var router = express.Router();
-var db = require('../db');
+const express = require('express');
+const router = express.Router();
+const db = require('../db');
 
-var VALID_STATUS = ['to do', 'in progress', 'done'];
+const VALID_STATUS = ['to do', 'in progress', 'done'];
 
-function isValidStatus(value) {
-  return VALID_STATUS.indexOf(value) !== -1;
-}
+const isValidStatus = (value) => VALID_STATUS.indexOf(value) !== -1;
 
-router.get('/', async function (req, res) {
+router.get('/', async (req, res) => {
   try {
-    var result = await db.listTasks();
+    const result = await db.listTasks();
     res.json({ tasks: result.rows });
   } catch (error) {
     res.status(500).json({
@@ -20,9 +18,9 @@ router.get('/', async function (req, res) {
   }
 });
 
-router.get('/:id', async function (req, res) {
+router.get('/:id', async (req, res) => {
   try {
-    var result = await db.getTaskById(req.params.id);
+    const result = await db.getTaskById(req.params.id);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Task not found' });
     }
@@ -32,10 +30,10 @@ router.get('/:id', async function (req, res) {
   }
 });
 
-router.post('/', async function (req, res) {
-  var title = req.body.title;
-  var description = req.body.description;
-  var status = req.body.status;
+router.post('/', async (req, res) => {
+  const title = req.body.title;
+  const description = req.body.description;
+  const status = req.body.status;
 
   if (typeof title !== 'string' || title.trim() === '') {
     return res.status(400).json({ error: 'title is required' });
@@ -48,7 +46,7 @@ router.post('/', async function (req, res) {
   }
 
   try {
-    var result = await db.createTask({
+    const result = await db.createTask({
       title: title.trim(),
       description: description,
       status: status
@@ -59,8 +57,8 @@ router.post('/', async function (req, res) {
   }
 });
 
-async function updateTask(req, res) {
-  var fields = {};
+const updateTask = async (req, res) => {
+  const fields = {};
 
   if (Object.prototype.hasOwnProperty.call(req.body, 'title')) {
     if (typeof req.body.title !== 'string' || req.body.title.trim() === '') {
@@ -88,7 +86,7 @@ async function updateTask(req, res) {
   }
 
   try {
-    var result = await db.updateTask(req.params.id, fields);
+    const result = await db.updateTask(req.params.id, fields);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Task not found' });
     }
@@ -96,14 +94,14 @@ async function updateTask(req, res) {
   } catch (error) {
     res.status(500).json({ error: 'Failed to update task', details: error.message });
   }
-}
+};
 
 router.put('/:id', updateTask);
 router.patch('/:id', updateTask);
 
-router.delete('/:id', async function (req, res) {
+router.delete('/:id', async (req, res) => {
   try {
-    var result = await db.deleteTask(req.params.id);
+    const result = await db.deleteTask(req.params.id);
     if (result.rowCount === 0) {
       return res.status(404).json({ error: 'Task not found' });
     }

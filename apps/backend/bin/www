@@ -1,51 +1,51 @@
 #!/usr/bin/env node
 
-var fs = require('fs');
-var http = require('http');
-var path = require('path');
-var dotenv = require('dotenv');
+const fs = require('fs');
+const http = require('http');
+const path = require('path');
+const dotenv = require('dotenv');
 
-var appRoot = path.resolve(__dirname, '..');
-var repoRoot = path.resolve(appRoot, '..', '..');
-var environment = process.env.NODE_ENV || 'development';
-var envFiles = [
+const appRoot = path.resolve(__dirname, '..');
+const repoRoot = path.resolve(appRoot, '..', '..');
+const environment = process.env.NODE_ENV || 'development';
+const envFiles = [
   '.env',
   '.env.local',
   '.env.' + environment,
   '.env.' + environment + '.local'
 ];
 
-function loadEnvFrom(baseDir) {
-  envFiles.forEach(function (envFile) {
-    var envPath = path.join(baseDir, envFile);
+const loadEnvFrom = (baseDir) => {
+  envFiles.forEach((envFile) => {
+    const envPath = path.join(baseDir, envFile);
     if (fs.existsSync(envPath)) {
       dotenv.config({ path: envPath, override: true });
     }
   });
-}
+};
 
 // Load repo-level env first, then app-level env so app-local values can override.
 loadEnvFrom(repoRoot);
 loadEnvFrom(appRoot);
 
-var app = require('../app');
+const app = require('../app');
 
-function normalizePort(val) {
-  var port = parseInt(val, 10);
+const normalizePort = (val) => {
+  const parsedPort = parseInt(val, 10);
 
-  if (isNaN(port)) return val;
-  if (port >= 0) return port;
+  if (isNaN(parsedPort)) return val;
+  if (parsedPort >= 0) return parsedPort;
   return false;
-}
+};
 
-var port = normalizePort(process.env.PORT || process.env.API_PORT || '3000');
+const port = normalizePort(process.env.PORT || process.env.API_PORT || '3000');
 
 app.set('port', port);
 
-var server = http.createServer(app);
+const server = http.createServer(app);
 server.listen(port);
-server.on('listening', function () {
-  var addr = server.address();
+server.on('listening', () => {
+  const addr = server.address();
   if (addr && typeof addr === 'object') {
     console.log('API listening at http://localhost:' + addr.port + ' (tasks: /tasks)');
     return;
