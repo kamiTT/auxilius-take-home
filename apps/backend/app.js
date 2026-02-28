@@ -1,19 +1,20 @@
-var express = require('express');
-var tasksRouter = require('./routes/tasks');
+const express = require('express');
+const tasksRouter = require('./routes/tasks');
+const usersRouter = require('./routes/users');
 
-var app = express();
+const app = express();
 
 app.use(express.json());
 
-app.get('/', function (req, res) {
+app.get('/', (req, res) => {
   res.json({ ok: true });
 });
 
-app.get('/health', function (req, res) {
+app.get('/health', (req, res) => {
   res.json({ ok: true });
 });
 
 app.use('/tasks', tasksRouter);
+app.use('/users', usersRouter);
 
 module.exports = app;
-
