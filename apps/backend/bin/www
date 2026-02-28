@@ -47,7 +47,7 @@ server.listen(port);
 server.on('listening', function () {
   var addr = server.address();
   if (addr && typeof addr === 'object') {
-    console.log('API listening at http://localhost:' + addr.port);
+    console.log('API listening at http://localhost:' + addr.port + ' (tasks: /tasks)');
     return;
   }
   console.log('API listening on ' + String(addr));
