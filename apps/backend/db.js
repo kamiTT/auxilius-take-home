@@ -10,7 +10,7 @@ var pool = new Pool({
 
 function getTasks() {
   return pool.query(
-    'SELECT id, title, completed, created_at AS "createdAt" FROM tasks ORDER BY id ASC'
+    'SELECT id, title, description, status, created_at AS "createdAt" FROM tasks ORDER BY id ASC'
   );
 }
 
@@ -18,4 +18,3 @@ module.exports = {
   getTasks: getTasks,
   pool: pool
 };
-
