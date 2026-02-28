@@ -4,6 +4,7 @@ const fs = require('fs');
 const http = require('http');
 const path = require('path');
 const dotenv = require('dotenv');
+const { Server } = require('socket.io');
 
 const appRoot = path.resolve(__dirname, '..');
 const repoRoot = path.resolve(appRoot, '..', '..');
@@ -43,11 +44,19 @@ const port = normalizePort(process.env.PORT || process.env.API_PORT || '3000');
 app.set('port', port);
 
 const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.SOCKET_IO_CORS_ORIGIN || '*',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+  }
+});
+app.applySocketMiddleware(io);
+
 server.listen(port);
 server.on('listening', () => {
   const addr = server.address();
   if (addr && typeof addr === 'object') {
-    console.log('API listening at http://localhost:' + addr.port + ' (tasks: /tasks)');
+    console.log('API listening at http://localhost:' + addr.port + ' (tasks: /tasks, socket: /socket.io)');
     return;
   }
   console.log('API listening on ' + String(addr));
