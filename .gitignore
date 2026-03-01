@@ -76,7 +76,6 @@ web_modules/
 out
 
 .DS_STORE
-apps/backend/config/
 .react-router/
 
 build/
