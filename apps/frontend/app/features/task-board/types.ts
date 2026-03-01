@@ -9,5 +9,10 @@ export type Task = {
   status: TaskStatus;
 };
 
-export type FormSubmitHandler = NonNullable<ComponentProps<"form">["onSubmit"]>;
+export type TaskDraft = {
+  title: string;
+  description?: string | null;
+  status: TaskStatus;
+};
 
+export type FormSubmitHandler = NonNullable<ComponentProps<"form">["onSubmit"]>;

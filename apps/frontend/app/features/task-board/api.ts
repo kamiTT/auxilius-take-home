@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "./constants";
-import type { Task } from "./types";
+import type { Task, TaskDraft } from "./types";
 
 export const fetchTasks = async (): Promise<Task[]> => {
   const response = await fetch(`${API_BASE_URL}/tasks`);
@@ -35,4 +35,46 @@ export const createUser = async (username: string): Promise<void> => {
   }
 
   throw new Error(errorMessage);
+};
+
+export const createTask = async (task: TaskDraft): Promise<Task> => {
+  const response = await fetch(`${API_BASE_URL}/tasks`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(task),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to create task (${response.status})`);
+  }
+
+  const payload: { task?: Task } = await response.json();
+  if (!payload.task) {
+    throw new Error("Task payload missing from create response");
+  }
+
+  return payload.task;
+};
+
+export const updateTask = async (taskId: string, task: TaskDraft): Promise<Task> => {
+  const response = await fetch(`${API_BASE_URL}/tasks/${taskId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(task),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to update task (${response.status})`);
+  }
+
+  const payload: { task?: Task } = await response.json();
+  if (!payload.task) {
+    throw new Error("Task payload missing from update response");
+  }
+
+  return payload.task;
 };

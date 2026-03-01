@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { createUser, fetchTasks } from "../api";
+import { createTask, createUser, fetchTasks, updateTask } from "../api";
 import { USERNAME_STORAGE_KEY } from "../constants";
-import type { FormSubmitHandler, Task } from "../types";
+import type { FormSubmitHandler, Task, TaskDraft } from "../types";
 import { groupTasksByStatus } from "../utils";
 
 export const useTaskBoard = () => {
@@ -72,6 +72,20 @@ export const useTaskBoard = () => {
     setError(null);
   };
 
+  const handleCreateTask = async (taskDraft: TaskDraft) => {
+    const createdTask = await createTask(taskDraft);
+    setTasks((currentTasks) => [createdTask, ...currentTasks]);
+    return createdTask;
+  };
+
+  const handleUpdateTask = async (taskId: string, taskDraft: TaskDraft) => {
+    const updatedTask = await updateTask(taskId, taskDraft);
+    setTasks((currentTasks) =>
+      currentTasks.map((task) => (task.id === taskId ? updatedTask : task))
+    );
+    return updatedTask;
+  };
+
   return {
     usernameInput,
     setUsernameInput,
@@ -82,5 +96,7 @@ export const useTaskBoard = () => {
     groupedTasks,
     handleLogin,
     handleLogout,
+    handleCreateTask,
+    handleUpdateTask,
   };
 };

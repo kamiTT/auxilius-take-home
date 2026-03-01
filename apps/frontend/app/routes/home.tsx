@@ -1,8 +1,11 @@
 import type { Route } from "./+types/home";
+import { useState } from "react";
 import { LoginView } from "../features/task-board/components/LoginView";
+import { TaskEditorModal } from "../features/task-board/components/TaskEditorModal";
 import { TaskColumn } from "../features/task-board/components/TaskColumn";
 import { COLUMN_ORDER } from "../features/task-board/constants";
 import { useTaskBoard } from "../features/task-board/hooks/useTaskBoard";
+import type { Task, TaskDraft, TaskStatus } from "../features/task-board/types";
 
 export const meta = ({}: Route.MetaArgs) => {
   return [
@@ -12,6 +15,13 @@ export const meta = ({}: Route.MetaArgs) => {
 };
 
 const Home = () => {
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [editorMode, setEditorMode] = useState<"create" | "edit">("create");
+  const [activeStatus, setActiveStatus] = useState<TaskStatus>("to do");
+  const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const [taskEditorError, setTaskEditorError] = useState<string | null>(null);
+  const [isSavingTask, setIsSavingTask] = useState(false);
+
   const {
     usernameInput,
     setUsernameInput,
@@ -22,7 +32,50 @@ const Home = () => {
     groupedTasks,
     handleLogin,
     handleLogout,
+    handleCreateTask,
+    handleUpdateTask,
   } = useTaskBoard();
+
+  const openCreateEditor = (status: TaskStatus) => {
+    setEditorMode("create");
+    setActiveStatus(status);
+    setActiveTask(null);
+    setTaskEditorError(null);
+    setIsEditorOpen(true);
+  };
+
+  const openEditEditor = (task: Task) => {
+    setEditorMode("edit");
+    setActiveStatus(task.status);
+    setActiveTask(task);
+    setTaskEditorError(null);
+    setIsEditorOpen(true);
+  };
+
+  const closeEditor = () => {
+    setIsEditorOpen(false);
+    setTaskEditorError(null);
+  };
+
+  const handleTaskSubmit = async (taskDraft: TaskDraft) => {
+    setIsSavingTask(true);
+    setTaskEditorError(null);
+
+    try {
+      if (editorMode === "create") {
+        await handleCreateTask(taskDraft);
+      } else if (activeTask) {
+        await handleUpdateTask(activeTask.id, taskDraft);
+      }
+      closeEditor();
+    } catch (taskError) {
+      const message =
+        taskError instanceof Error ? taskError.message : "Failed to save task. Please try again.";
+      setTaskEditorError(message);
+    } finally {
+      setIsSavingTask(false);
+    }
+  };
 
   if (!username) {
     return (
@@ -62,10 +115,28 @@ const Home = () => {
 
         <section className="grid gap-4 md:grid-cols-3">
           {COLUMN_ORDER.map((status) => (
-            <TaskColumn key={status} status={status} tasks={groupedTasks[status]} />
+            <TaskColumn
+              key={status}
+              status={status}
+              tasks={groupedTasks[status]}
+              onCreateTask={openCreateEditor}
+              onEditTask={openEditEditor}
+            />
           ))}
         </section>
       </div>
+
+      {isEditorOpen ? (
+        <TaskEditorModal
+          mode={editorMode}
+          status={activeStatus}
+          task={activeTask}
+          isSubmitting={isSavingTask}
+          error={taskEditorError}
+          onClose={closeEditor}
+          onSubmit={handleTaskSubmit}
+        />
+      ) : null}
     </main>
   );
 };
