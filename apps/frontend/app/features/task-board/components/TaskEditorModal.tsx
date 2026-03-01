@@ -8,9 +8,11 @@ type TaskEditorModalProps = {
   status: TaskStatus;
   task: Task | null;
   isSubmitting: boolean;
+  isDeleting: boolean;
   error: string | null;
   onClose: () => void;
   onSubmit: (taskDraft: TaskDraft) => Promise<void>;
+  onDelete: (() => Promise<void>) | null;
 };
 
 export const TaskEditorModal = ({
@@ -18,9 +20,11 @@ export const TaskEditorModal = ({
   status,
   task,
   isSubmitting,
+  isDeleting,
   error,
   onClose,
   onSubmit,
+  onDelete,
 }: TaskEditorModalProps) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -135,13 +139,25 @@ export const TaskEditorModal = ({
             </select>
           </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
-          >
-            {isSubmitting ? "Saving..." : submitText}
-          </button>
+          <div className="flex items-center gap-2">
+            {mode === "edit" && onDelete ? (
+              <button
+                type="button"
+                onClick={onDelete}
+                disabled={isSubmitting || isDeleting}
+                className="w-full rounded-md border border-red-300 bg-red-50 px-4 py-2 font-medium text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            ) : null}
+            <button
+              type="submit"
+              disabled={isSubmitting || isDeleting}
+              className="w-full rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+            >
+              {isSubmitting ? "Saving..." : submitText}
+            </button>
+          </div>
         </form>
       </div>
     </Modal>

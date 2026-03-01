@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { createTask, createUser, fetchTasks, updateTask } from "../api";
+import {
+  createTask,
+  createUser,
+  deleteTask,
+  fetchTasks,
+  updateTask,
+} from "../api";
 import { USERNAME_STORAGE_KEY } from "../constants";
 import type { FormSubmitHandler, Task, TaskDraft } from "../types";
 import { groupTasksByStatus } from "../utils";
@@ -86,6 +92,11 @@ export const useTaskBoard = () => {
     return updatedTask;
   };
 
+  const handleDeleteTask = async (taskId: string) => {
+    await deleteTask(taskId);
+    setTasks((currentTasks) => currentTasks.filter((task) => task.id !== taskId));
+  };
+
   return {
     usernameInput,
     setUsernameInput,
@@ -98,5 +109,6 @@ export const useTaskBoard = () => {
     handleLogout,
     handleCreateTask,
     handleUpdateTask,
+    handleDeleteTask,
   };
 };

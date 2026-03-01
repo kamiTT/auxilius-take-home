@@ -21,6 +21,7 @@ const Home = () => {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [taskEditorError, setTaskEditorError] = useState<string | null>(null);
   const [isSavingTask, setIsSavingTask] = useState(false);
+  const [isDeletingTask, setIsDeletingTask] = useState(false);
 
   const {
     usernameInput,
@@ -34,6 +35,7 @@ const Home = () => {
     handleLogout,
     handleCreateTask,
     handleUpdateTask,
+    handleDeleteTask,
   } = useTaskBoard();
 
   const openCreateEditor = (status: TaskStatus) => {
@@ -55,6 +57,8 @@ const Home = () => {
   const closeEditor = () => {
     setIsEditorOpen(false);
     setTaskEditorError(null);
+    setIsSavingTask(false);
+    setIsDeletingTask(false);
   };
 
   const handleTaskSubmit = async (taskDraft: TaskDraft) => {
@@ -74,6 +78,26 @@ const Home = () => {
       setTaskEditorError(message);
     } finally {
       setIsSavingTask(false);
+    }
+  };
+
+  const handleTaskDelete = async () => {
+    if (!activeTask || editorMode !== "edit") {
+      return;
+    }
+
+    setIsDeletingTask(true);
+    setTaskEditorError(null);
+
+    try {
+      await handleDeleteTask(activeTask.id);
+      closeEditor();
+    } catch (taskError) {
+      const message =
+        taskError instanceof Error ? taskError.message : "Failed to delete task. Please try again.";
+      setTaskEditorError(message);
+    } finally {
+      setIsDeletingTask(false);
     }
   };
 
@@ -132,9 +156,11 @@ const Home = () => {
           status={activeStatus}
           task={activeTask}
           isSubmitting={isSavingTask}
+          isDeleting={isDeletingTask}
           error={taskEditorError}
           onClose={closeEditor}
           onSubmit={handleTaskSubmit}
+          onDelete={editorMode === "edit" ? handleTaskDelete : null}
         />
       ) : null}
     </main>
