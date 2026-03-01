@@ -35,5 +35,19 @@ services:
     ports:
       - "${API_PORT:-3000}:${API_PORT:-3000}"
 
+  frontend:
+    build:
+      context: ./apps/frontend
+      args:
+        VITE_API_URL: http://localhost:${API_PORT:-3000}
+    container_name: auxilius_frontend
+    depends_on:
+      api:
+        condition: service_started
+    environment:
+      PORT: ${FRONTEND_PORT:-3001}
+    ports:
+      - "${FRONTEND_PORT:-3001}:${FRONTEND_PORT:-3001}"
+
 volumes:
   postgres_data:
