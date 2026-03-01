@@ -19,7 +19,7 @@ export const LoginView = ({ usernameInput, onUsernameInputChange, onLogin }: Log
           id="username"
           value={usernameInput}
           onChange={(event) => onUsernameInputChange(event.target.value)}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 outline-none ring-blue-500 focus:ring-2"
+          className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 !text-black outline-none ring-blue-500 placeholder:text-gray-400 focus:ring-2"
           placeholder="e.g. alex"
         />
         <button
@@ -32,4 +32,3 @@ export const LoginView = ({ usernameInput, onUsernameInputChange, onLogin }: Log
     </div>
   </main>
 );
-
