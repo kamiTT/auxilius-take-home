@@ -20,7 +20,7 @@ services:
     build:
       context: ./apps/backend
     container_name: auxilius_api
-    command: sh -c "npm run migrate:up && npm start"
+    command: sh -c "npm run migrate:up && npm run seed:up && npm start"
     depends_on:
       db:
         condition: service_healthy
