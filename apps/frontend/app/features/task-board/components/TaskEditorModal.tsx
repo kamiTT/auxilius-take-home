@@ -30,6 +30,10 @@ export const TaskEditorModal = ({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [nextStatus, setNextStatus] = useState<TaskStatus>(status);
+  const [showValidationError, setShowValidationError] = useState(false);
+  const trimmedTitle = title.trim();
+  const isTitleValid = trimmedTitle.length > 0;
+  const validationError = !isTitleValid ? "Title is required and cannot be only whitespace." : null;
 
   useEffect(() => {
     Modal.setAppElement("body");
@@ -46,13 +50,14 @@ export const TaskEditorModal = ({
     setTitle("");
     setDescription("");
     setNextStatus(status);
+    setShowValidationError(false);
   }, [mode, status, task]);
 
   const handleSubmit: FormSubmitHandler = async (event) => {
     event.preventDefault();
 
-    const trimmedTitle = title.trim();
-    if (!trimmedTitle) {
+    if (validationError) {
+      setShowValidationError(true);
       return;
     }
 
@@ -87,6 +92,9 @@ export const TaskEditorModal = ({
           </button>
         </div>
 
+        {showValidationError && validationError ? (
+          <ErrorAlert message={validationError} className="mb-3" />
+        ) : null}
         {error ? <ErrorAlert message={error} className="mb-3" /> : null}
 
         <form className="space-y-3" onSubmit={handleSubmit}>
@@ -97,7 +105,12 @@ export const TaskEditorModal = ({
             <input
               id="task-title"
               value={title}
-              onChange={(event) => setTitle(event.target.value)}
+              onChange={(event) => {
+                setTitle(event.target.value);
+                if (showValidationError) {
+                  setShowValidationError(false);
+                }
+              }}
               className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-black outline-none ring-blue-500 focus:ring-2"
               placeholder="Task title"
               required
@@ -127,7 +140,12 @@ export const TaskEditorModal = ({
             <select
               id="task-status"
               value={nextStatus}
-              onChange={(event) => setNextStatus(event.target.value as TaskStatus)}
+              onChange={(event) => {
+                setNextStatus(event.target.value as TaskStatus);
+                if (showValidationError) {
+                  setShowValidationError(false);
+                }
+              }}
               className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-black outline-none ring-blue-500 focus:ring-2"
             >
               <option value="to do">To Do</option>
@@ -149,7 +167,7 @@ export const TaskEditorModal = ({
             ) : null}
             <button
               type="submit"
-              disabled={isSubmitting || isDeleting}
+              disabled={isSubmitting || isDeleting || Boolean(validationError)}
               className="w-full rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
             >
               {isSubmitting ? "Saving..." : submitText}
