@@ -51,7 +51,11 @@ router.post('/', async (req, res) => {
       description: description,
       status: status
     });
-    res.status(201).json({ task: result.rows[0] });
+    const createdTask = result.rows[0];
+    if (req.io) {
+      req.io.emit('task:created', createdTask);
+    }
+    res.status(201).json({ task: createdTask });
   } catch (error) {
     res.status(500).json({ error: 'Failed to create task', details: error.message });
   }
@@ -90,7 +94,11 @@ const updateTask = async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Task not found' });
     }
-    res.json({ task: result.rows[0] });
+    const updatedTask = result.rows[0];
+    if (req.io) {
+      req.io.emit('task:updated', updatedTask);
+    }
+    res.json({ task: updatedTask });
   } catch (error) {
     res.status(500).json({ error: 'Failed to update task', details: error.message });
   }
@@ -101,9 +109,13 @@ router.patch('/:id', updateTask);
 
 router.delete('/:id', async (req, res) => {
   try {
-    const result = await db.deleteTask(req.params.id);
+    const taskId = req.params.id;
+    const result = await db.deleteTask(taskId);
     if (result.rowCount === 0) {
       return res.status(404).json({ error: 'Task not found' });
+    }
+    if (req.io) {
+      req.io.emit('task:deleted', { id: taskId });
     }
     res.status(204).send();
   } catch (error) {

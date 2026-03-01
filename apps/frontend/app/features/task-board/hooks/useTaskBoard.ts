@@ -6,9 +6,10 @@ import {
   fetchTasks,
   updateTask,
 } from "../api";
-import { USERNAME_STORAGE_KEY } from "../constants";
-import type { FormSubmitHandler, Task, TaskDraft } from "../types";
 import { groupTasksByStatus } from "../utils";
+import { USERNAME_STORAGE_KEY } from "../constants";
+import { useTaskRealtime } from "./useTaskRealtime";
+import type { FormSubmitHandler, Task, TaskDraft } from "../types";
 
 export const useTaskBoard = () => {
   const [usernameInput, setUsernameInput] = useState("");
@@ -45,6 +46,8 @@ export const useTaskBoard = () => {
 
     loadTasks();
   }, [username]);
+
+  useTaskRealtime(username, setTasks);
 
   const groupedTasks = useMemo(() => {
     return groupTasksByStatus(tasks);
