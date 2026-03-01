@@ -49,9 +49,19 @@ export const useTaskBoard = () => {
 
   useTaskRealtime(username, setTasks);
 
-  const groupedTasks = useMemo(() => {
-    return groupTasksByStatus(tasks);
+
+  // Fixed a bug where tasks were appearing twice on creation
+  const dedupedTasks = useMemo(() => {
+    const byId = new Map<string, Task>();
+    tasks.forEach((task) => {
+      byId.set(task.id, task);
+    });
+    return Array.from(byId.values());
   }, [tasks]);
+
+  const groupedTasks = useMemo(() => {
+    return groupTasksByStatus(dedupedTasks);
+  }, [dedupedTasks]);
 
   const handleLogin: FormSubmitHandler = async (event) => {
     event.preventDefault();
@@ -83,7 +93,14 @@ export const useTaskBoard = () => {
 
   const handleCreateTask = async (taskDraft: TaskDraft) => {
     const createdTask = await createTask(taskDraft);
-    setTasks((currentTasks) => [createdTask, ...currentTasks]);
+    setTasks((currentTasks) => {
+      const existingTask = currentTasks.find((task) => task.id === createdTask.id);
+      if (existingTask) {
+        return currentTasks.map((task) => (task.id === createdTask.id ? createdTask : task));
+      }
+
+      return [createdTask, ...currentTasks];
+    });
     return createdTask;
   };
 
