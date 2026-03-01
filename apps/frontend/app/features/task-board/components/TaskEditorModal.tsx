@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { COLUMN_LABELS } from "../constants";
 import type { FormSubmitHandler, Task, TaskDraft, TaskStatus } from "../types";
+import { ErrorAlert } from "./ErrorAlert";
 
 type TaskEditorModalProps = {
   mode: "create" | "edit";
@@ -86,11 +87,7 @@ export const TaskEditorModal = ({
           </button>
         </div>
 
-        {error ? (
-          <p className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-            {error}
-          </p>
-        ) : null}
+        {error ? <ErrorAlert message={error} className="mb-3" /> : null}
 
         <form className="space-y-3" onSubmit={handleSubmit}>
           <div>

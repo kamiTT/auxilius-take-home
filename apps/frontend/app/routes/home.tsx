@@ -3,6 +3,7 @@ import { useState } from "react";
 import { LoginView } from "../features/task-board/components/LoginView";
 import { TaskEditorModal } from "../features/task-board/components/TaskEditorModal";
 import { TaskColumn } from "../features/task-board/components/TaskColumn";
+import { ErrorAlert } from "../features/task-board/components/ErrorAlert";
 import { COLUMN_ORDER } from "../features/task-board/constants";
 import { useTaskBoard } from "../features/task-board/hooks/useTaskBoard";
 import type { Task, TaskDraft, TaskStatus } from "../features/task-board/types";
@@ -131,11 +132,7 @@ const Home = () => {
         </header>
 
         {isLoading && <p className="mb-4 text-sm text-gray-600">Loading tasks...</p>}
-        {error && (
-          <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-            {error}
-          </p>
-        )}
+        {error ? <ErrorAlert message={error} className="mb-4" /> : null}
 
         <section className="grid gap-4 md:grid-cols-3">
           {COLUMN_ORDER.map((status) => (
