@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { fetchTasks } from "../api";
+import { createUser, fetchTasks } from "../api";
 import { USERNAME_STORAGE_KEY } from "../constants";
 import type { FormSubmitHandler, Task } from "../types";
 import { groupTasksByStatus } from "../utils";
@@ -9,6 +9,7 @@ export const useTaskBoard = () => {
   const [username, setUsername] = useState<string | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmittingLogin, setIsSubmittingLogin] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -43,14 +44,25 @@ export const useTaskBoard = () => {
     return groupTasksByStatus(tasks);
   }, [tasks]);
 
-  const handleLogin: FormSubmitHandler = (event) => {
+  const handleLogin: FormSubmitHandler = async (event) => {
     event.preventDefault();
     const trimmedUsername = usernameInput.trim();
     if (!trimmedUsername) return;
 
-    window.localStorage.setItem(USERNAME_STORAGE_KEY, trimmedUsername);
-    setUsername(trimmedUsername);
-    setUsernameInput("");
+    setIsSubmittingLogin(true);
+    setError(null);
+
+    try {
+      await createUser(trimmedUsername);
+      window.localStorage.setItem(USERNAME_STORAGE_KEY, trimmedUsername);
+      setUsername(trimmedUsername);
+      setUsernameInput("");
+    } catch (loginError) {
+      const message = loginError instanceof Error ? loginError.message : "Failed to log in.";
+      setError(message);
+    } finally {
+      setIsSubmittingLogin(false);
+    }
   };
 
   const handleLogout = () => {
@@ -65,10 +77,10 @@ export const useTaskBoard = () => {
     setUsernameInput,
     username,
     isLoading,
+    isSubmittingLogin,
     error,
     groupedTasks,
     handleLogin,
     handleLogout,
   };
 };
-

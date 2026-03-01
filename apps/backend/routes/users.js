@@ -31,11 +31,9 @@ router.post('/', async (req, res) => {
 
   try {
     const result = await db.createUser({ username: username.trim() });
-    res.status(201).json({ user: result.rows[0] });
+    const statusCode = result.created ? 201 : 200;
+    res.status(statusCode).json({ user: result.rows[0] });
   } catch (error) {
-    if (error.code === '23505') {
-      return res.status(409).json({ error: 'username already exists' });
-    }
     res.status(500).json({ error: 'Failed to create user', details: error.message });
   }
 });

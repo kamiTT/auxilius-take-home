@@ -17,6 +17,7 @@ const Task = sequelize.define(
   {
     id: {
       type: Sequelize.DataTypes.UUID,
+      defaultValue: Sequelize.DataTypes.UUIDV4,
       primaryKey: true
     },
     title: {
@@ -51,6 +52,7 @@ const User = sequelize.define(
   {
     id: {
       type: Sequelize.DataTypes.UUID,
+      defaultValue: Sequelize.DataTypes.UUIDV4,
       primaryKey: true
     },
     username: {
@@ -112,8 +114,12 @@ const getUserById = async (id) => {
 };
 
 const createUser = async (user) => {
-  const item = await User.create({ username: user.username });
-  return { rows: [toPlain(item)] };
+  const [item, created] = await User.findOrCreate({
+    where: { username: user.username },
+    defaults: { username: user.username }
+  });
+
+  return { rows: [toPlain(item)], created };
 };
 
 const updateUser = async (id, fields) => {

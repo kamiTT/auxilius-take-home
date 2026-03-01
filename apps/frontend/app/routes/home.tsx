@@ -17,6 +17,7 @@ const Home = () => {
     setUsernameInput,
     username,
     isLoading,
+    isSubmittingLogin,
     error,
     groupedTasks,
     handleLogin,
@@ -29,6 +30,8 @@ const Home = () => {
         usernameInput={usernameInput}
         onUsernameInputChange={setUsernameInput}
         onLogin={handleLogin}
+        isSubmitting={isSubmittingLogin}
+        error={error}
       />
     );
   }
