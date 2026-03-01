@@ -6,6 +6,7 @@
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "node ./scripts/start-with-log.mjs",
+    "start:local": "npm run build && npm run start",
     "typecheck": "react-router build; react-router typegen && tsc"
   },
   "dependencies": {
